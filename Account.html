@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>GazStudios</title>
+</head>
+
+<body>
+    <div id="Account" class="account">
+        <div class="left">
+
+        </div>
+        <div class="center">
+            <h1 style="font-weight: 600; font-size: 25px; color: white;">Sign in to your account</h1>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button id="signin" onclick="signin()">Sign In</button>
+            <p id="error" style="color: red; font-size: 12px; display: none;">Invalid credentials</p>
+            <p>Don't have an account? <a href="SignUp.html">Sign Up</a></p>
+        </div>
+        <div class="right">
+            <p>Sign in to your account</p>
+        </div>
+    </div>
+
+    <style>
+        input {
+            background-color: white;
+            color: black;
+            border: none;
+            padding: 12px 26px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 18px;
+
+
+        }
+
+        button#signin {
+            background-color: white;
+            color: black;
+            border: none;
+            padding: 12px 26px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        button#signin:hover {
+            background-color: #333;
+            color: white;
+        }
+
+        body {
+            background-color: aliceblue;
+            color: black;
+
+        }
+
+        p {
+            color: black;
+        }
+
+        .account,
+        #Account {
+            color: black;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100vh;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0 40px;
+            font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+            font-weight: 800;
+            font-size: 20px;
+            text-align: center;
+        }
+
+        .center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+    </style>
+
+    <script>
+        'use strict';
+
+        const enc = new TextEncoder();
+        const b64 = b => btoa(String.fromCharCode(...new Uint8Array(b)));
+
+        async function pbkdf2(pw, saltB64) {
+            const salt = saltB64 ? Uint8Array.from(atob(saltB64), c => c.charCodeAt(0)) : crypto.getRandomValues(new Uint8Array(16));
+            const key = await crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveBits']);
+            const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations: 150000, hash: 'SHA-256' }, key, 256);
+            return { salt: b64(salt), hash: b64(bits) };
+        }
+
+        const rnd = n => b64(crypto.getRandomValues(new Uint8Array(n)));
+
+        function getAllUsers() {
+            const keys = ['gazstudios_users', 'gz.users.3'];
+            for (const k of keys) {
+                try {
+                    const v = localStorage.getItem(k);
+                    if (v) {
+                        const parsed = JSON.parse(v);
+                        if (parsed && typeof parsed === 'object') return parsed;
+                    }
+                } catch (e) { }
+            }
+            return {};
+        }
+
+        function getActiveSession() {
+            const keys = ['gazstudios_session', 'gz.session.3'];
+            for (const k of keys) {
+                try {
+                    const raw = localStorage.getItem(k);
+                    if (raw) {
+                        const sess = JSON.parse(raw);
+                        if (sess && sess.username && sess.expires > Date.now()) {
+                            return sess;
+                        }
+                    }
+                } catch (e) { }
+            }
+            return null;
+        }
+
+        function setSession(username, name) {
+            const sessionData = {
+                username: username,
+                name: name || username,
+                token: rnd(24),
+                expires: Date.now() + 30 * 864e5
+            };
+            const str = JSON.stringify(sessionData);
+            ['gazstudios_session', 'gz.session.3'].forEach(k => {
+                try { localStorage.setItem(k, str); } catch (e) { }
+            });
+        }
+
+        function clearSession() {
+            ['gazstudios_session', 'gz.session.3'].forEach(k => {
+                try { localStorage.removeItem(k); } catch (e) { }
+            });
+        }
+
+        async function signin() {
+            const u = document.getElementById('username').value.trim().toLowerCase();
+            const pw = document.getElementById('password').value;
+            const err = document.getElementById('error');
+
+            if (!u || !pw) {
+                err.textContent = 'Please enter username and password';
+                err.style.display = 'block';
+                return;
+            }
+
+            const users = getAllUsers();
+            const record = users[u];
+
+            if (!record) {
+                err.textContent = 'Invalid credentials';
+                err.style.display = 'block';
+                return;
+            }
+
+            try {
+                const { hash } = await pbkdf2(pw, record.salt);
+                if (hash !== record.hash) {
+                    err.textContent = 'Invalid credentials';
+                    err.style.display = 'block';
+                    return;
+                }
+
+                setSession(u, record.name);
+                err.style.display = 'none';
+                window.location.href = 'GazSTudios.html';
+            } catch (e) {
+                err.textContent = 'Error signing in: ' + (e.message || e);
+                err.style.display = 'block';
+            }
+        }
+
+        // Check if already signed in
+        window.addEventListener('DOMContentLoaded', () => {
+            const sess = getActiveSession();
+            if (sess && sess.username) {
+                const h1 = document.querySelector('h1');
+                if (h1) h1.textContent = 'Signed in as ' + sess.username;
+                const btn = document.getElementById('signin');
+                if (btn) {
+                    btn.textContent = 'Sign Out';
+                    btn.onclick = () => {
+                        clearSession();
+                        window.location.reload();
+                    };
+                }
+                const uInp = document.getElementById('username');
+                const pInp = document.getElementById('password');
+                if (uInp) uInp.style.display = 'none';
+                if (pInp) pInp.style.display = 'none';
+            }
+        });
+
+        ['username', 'password'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') signin();
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
