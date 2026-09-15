@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>GazStudios</title>
+</head>
+
+<body>
+    <div id="Account" class="account">
+        <div class="left">
+
+        </div>
+        <div class="center">
+            <h1 style="font-weight: 600; font-size: 25px; color: white;">Sign in to your account</h1>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button id="signUP" onclick="signin()">Sign UP</button>
+            <p id="error" style="color: red; font-size: 12px; display: none;">Invalid credentials</p>
+        </div>
+        <div class="right">
+            <p>Create an account</p>
+        </div>
+    </div>
+
+    <style>
+        input {
+            background-color: white;
+            color: black;
+            border: none;
+            padding: 12px 26px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 18px;
+
+
+        }
+
+        button#signin {
+            background-color: white;
+            color: black;
+            border: none;
+            padding: 12px 26px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        button#signin:hover {
+            background-color: #333;
+            color: white;
+        }
+
+        body {
+            background-color: aliceblue;
+            color: black;
+
+        }
+
+        p {
+            color: black;
+        }
+
+        .account, #Account {
+            color: black;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100vh;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0 40px;
+            font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+            font-weight: 800;
+            font-size: 20px;
+            text-align: center;
+        }
+
+
+        button {
+            background-color: white;
+            color: black;
+            border: none;
+            padding: 12px 26px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 18px;
+
+
+        }
+
+        .center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+    </style>
+
+    <script>
+        'use strict';
+
+        const enc = new TextEncoder();
+        const b64 = b => btoa(String.fromCharCode(...new Uint8Array(b)));
+
+        async function pbkdf2(pw, saltB64) {
+            const salt = saltB64 ? Uint8Array.from(atob(saltB64), c => c.charCodeAt(0)) : crypto.getRandomValues(new Uint8Array(16));
+            const key = await crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveBits']);
+            const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations: 150000, hash: 'SHA-256' }, key, 256);
+            return { salt: b64(salt), hash: b64(bits) };
+        }
+
+        const rnd = n => b64(crypto.getRandomValues(new Uint8Array(n)));
+
+        function getAllUsers() {
+            const keys = ['gazstudios_users', 'gz.users.3'];
+            for (const k of keys) {
+                try {
+                    const v = localStorage.getItem(k);
+                    if (v) {
+                        const parsed = JSON.parse(v);
+                        if (parsed && typeof parsed === 'object') return parsed;
+                    }
+                } catch (e) {}
+            }
+            return {};
+        }
+
+        function saveAllUsers(users) {
+            const str = JSON.stringify(users);
+            ['gazstudios_users', 'gz.users.3'].forEach(k => {
+                try { localStorage.setItem(k, str); } catch (e) {}
+            });
+        }
+
+        function setSession(username, name) {
+            const sessionData = {
+                username: username,
+                name: name || username,
+                token: rnd(24),
+                expires: Date.now() + 30 * 864e5
+            };
+            const str = JSON.stringify(sessionData);
+            ['gazstudios_session', 'gz.session.3'].forEach(k => {
+                try { localStorage.setItem(k, str); } catch (e) {}
+            });
+        }
+
+        async function signin() {
+            const u = document.getElementById('username').value.trim().toLowerCase();
+            const pw = document.getElementById('password').value;
+            const err = document.getElementById('error');
+
+            if (!u) {
+                err.textContent = 'Please enter a username';
+                err.style.display = 'block';
+                return;
+            }
+            if (!pw || pw.length < 6) {
+                err.textContent = 'Password must be at least 6 characters';
+                err.style.display = 'block';
+                return;
+            }
+
+            const users = getAllUsers();
+            if (users[u]) {
+                err.textContent = 'Username already exists';
+                err.style.display = 'block';
+                return;
+            }
+
+            try {
+                const { salt, hash } = await pbkdf2(pw);
+                users[u] = {
+                    name: u,
+                    salt: salt,
+                    hash: hash,
+                    created: Date.now()
+                };
+                saveAllUsers(users);
+                setSession(u, u);
+                err.style.display = 'none';
+                window.location.href = 'welcome.html';
+            } catch (e) {
+                err.textContent = 'Error creating account: ' + (e.message || e);
+                err.style.display = 'block';
+            }
+        }
+
+        ['username', 'password'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') signin();
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
