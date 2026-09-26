@@ -684,19 +684,7 @@ html[data-theme="ink"] .chatgpt-dot{background:rgba(255,255,255,.35)}
 </head>
 <body>
 
-<!-- ===== AUTH: delegated to the standalone GazStudios Account (Gazaccount) ===== -->
-<div id="auth">
-  <div class="auth-card" style="text-align:center">
-    <div class="auth-brand" style="justify-content:center">
-      <div class="mark">✦</div>
-      <div><h1>GazChat Studio</h1><p>Sign in with your GazStudios Account.</p></div>
-    </div>
-    <p style="font-size:13px;color:var(--muted);margin:8px 0 18px">Redirecting you to your Gazaccount…</p>
-    <button class="btn solid" onclick="goToGazAccount()">Go to GazStudios Account</button>
-    <div class="foot-note">You'll return here automatically after signing in.</div>
-  </div>
-</div>
-
+<!-- ================= DIRECT AI MODE ================= -->
 <!-- ================= SHELL ================= -->
 <div class="shell hidden" id="shell">
   <nav class="rail" id="rail">
@@ -707,11 +695,8 @@ html[data-theme="ink"] .chatgpt-dot{background:rgba(255,255,255,.35)}
     <button class="rbtn" onclick="openPalette()">⌕<span class="tip">Search</span></button>
     <div class="spacer"></div>
     <button class="rbtn" onclick="window.location.href='welcome.html'">🏠<span class="tip">GazStudios Home</span></button>
-    <button class="rbtn" onclick="window.location.href='Account.html'">👤<span class="tip">GazStudios Account</span></button>
     <button class="rbtn" id="rTheme" onclick="toggleTheme()">◐<span class="tip">Theme</span></button>
-    <button class="rbtn" onclick="openModal('pwModal')">⚿<span class="tip">Password</span></button>
-    <button class="rbtn" onclick="signOut()">⏻<span class="tip">Sign out</span></button>
-    <div class="who" id="who" onclick="window.location.href='Account.html'" title="View GazStudios Account" style="cursor:pointer">G</div>
+    <div class="who" id="who" title="GazChat AI">G</div>
   </nav>
 
   <aside class="conv" id="conv">
@@ -732,11 +717,11 @@ html[data-theme="ink"] .chatgpt-dot{background:rgba(255,255,255,.35)}
     </div>
     <div class="conv-list" id="cList"></div>
     <div class="conv-foot">
-      <div class="conv-user-bar" onclick="window.location.href='Account.html'" title="View GazStudios Account">
+      <div class="conv-user-bar" title="GazChat AI">
         <div class="who" id="drawerWho">G</div>
         <div class="user-meta">
-          <span class="uname" id="drawerUser">@user</span>
-          <span class="ulink">GazStudios Account ↗</span>
+          <span class="uname" id="drawerUser">GazChat</span>
+          <span class="ulink">Direct AI mode</span>
         </div>
         <button class="sbtn" onclick="event.stopPropagation();toggleTheme()" title="Theme" style="width:30px;height:30px;min-width:30px;font-size:13px">◐</button>
       </div>
@@ -962,16 +947,11 @@ html[data-theme="ink"] .chatgpt-dot{background:rgba(255,255,255,.35)}
     </div>
 
     <div class="sect">
-      <h3>Account</h3>
-      <div class="kv"><span>User</span><b id="accUser">—</b></div>
+      <h3>Session</h3>
+      <div class="kv"><span>Mode</span><b id="accUser">Direct AI</b></div>
       <div class="kv"><span>Chats</span><b id="accChats">0</b></div>
       <div class="row" style="margin-top:12px">
-        <button class="btn line" onclick="openModal('pwModal')">Change password</button>
-        <button class="btn line" onclick="signOut()">Sign out</button>
-      </div>
-      <div class="row" style="margin-top:8px">
-        <button class="btn line" onclick="window.location.href='Account.html'">GazStudios Account ↗</button>
-        <button class="btn line" onclick="window.location.href='welcome.html'">Home ↗</button>
+        <button class="btn line" onclick="window.location.href='welcome.html'">GazStudios Home ↗</button>
       </div>
     </div>
 
@@ -1132,61 +1112,30 @@ function ctxFor(id, model){
 }
 
 /* ==========================================================================
-   AUTH
+   DIRECT AI MODE
    ========================================================================== */
-let user = null, tab = 'in';
-const usersAll = () => {
-  const g = get('gazstudios_users', null);
-  const z = get(K.users, {});
-  return Object.assign({}, z, (g && typeof g === 'object') ? g : {});
-};
-const saveUsers = all => {
-  const str = JSON.stringify(all);
-  put(K.users, str);
-  put('gazstudios_users', str);
-};
+let user = { username:'local', name:'GazChat', guest:true };
 
-/* Sign-in is handled entirely by the standalone GazStudios Account page
-   (Account.html "Gazaccount"). GazChat no longer renders its own login form —
-   it just consumes the shared session that Account.html writes, and sends the
-   user there whenever no valid session exists. */
-function gazAccountUrl(){
-  const here = (location.pathname.split('/').pop() || 'gazchat.html') + location.search + location.hash;
-  // Account.html is the shared GazStudios ID page used by every app, so it
-  // knows which app to sign into and where to send the user back.
-  return 'Account.html?return=' + encodeURIComponent(here) + '&app=GazChat';
-}
-function goToGazAccount(){ window.location.href = gazAccountUrl(); }
 function signOut(){
   if(generating) stop();
-  put(K.session, undefined);
-  put('gazstudios_session', undefined);
-  user = null;
   closeAll();
-  window.location.href = gazAccountUrl();
+  user = { username:'local', name:'GazChat', guest:true };
+  enter();
+  toast('Direct AI mode is already active');
 }
+
 async function changePw(){
-  if(user.guest) return toast('Guests have no password.');
-  const all = usersAll(), rec = all[user.username];
-  const cur = await pbkdf2($('pOld').value, rec.salt);
-  if(cur.hash !== rec.hash){ $('pMsg').textContent = 'Current password is incorrect.'; return; }
-  if($('pNew').value.length < 6){ $('pMsg').textContent = 'New password must be at least 6 characters.'; return; }
-  if($('pNew').value !== $('pNew2').value){ $('pMsg').textContent = 'New passwords do not match.'; return; }
-  const { salt, hash } = await pbkdf2($('pNew').value);
-  rec.salt = salt; rec.hash = hash;
-  saveUsers(all);
-  $('pOld').value = $('pNew').value = $('pNew2').value = ''; $('pMsg').textContent = '';
-  closeModal('pwModal'); toast('Password updated');
+  toast('Password settings are disabled in Direct AI mode');
 }
 
 function enter(){
-  $('auth').classList.add('hidden');
+  const auth = $('auth'); if(auth) auth.classList.add('hidden');
   $('shell').classList.remove('hidden');
   const initial = (user.name||'G').charAt(0).toUpperCase();
   $('who').textContent = initial;
   const dw = $('drawerWho'); if(dw) dw.textContent = initial;
-  const du = $('drawerUser'); if(du) du.textContent = user.guest ? 'Guest' : '@' + user.username;
-  $('accUser').textContent = user.guest ? 'Guest' : '@' + user.username;
+  const du = $('drawerUser'); if(du) du.textContent = user.guest ? 'GazChat' : '@' + user.username;
+  $('accUser').textContent = user.guest ? 'Direct AI' : '@' + user.username;
   if(ORDER.indexOf(active) === -1) active = 'nano';
   ensure('nano').model = tierCfg().label;
   ensure('nano').accent = tierCfg().accent;
@@ -3793,20 +3742,8 @@ function boot(){
     active = 'nano';
     put(K.active, JSON.stringify('nano'));
   }
-  let s = get('gazstudios_session', null);
-  if(!s || !s.username || s.expires <= Date.now()){
-    s = get(K.session, null);
-  }
-  if(s && s.expires > Date.now() && s.username && s.username !== 'guest'){
-    const all = usersAll();
-    if(all[s.username]){ user = { username:s.username, name:all[s.username].name || s.username, guest:false }; enter(); }
-    else {
-      put(K.session, undefined);
-      put('gazstudios_session', undefined);
-    }
-  }
-  // No GazChat-local login any more: defer to the Gazaccount sign-in page.
-  if(!user){ goToGazAccount(); return; }
+  user = { username:'local', name:'GazChat', guest:true };
+  enter();
   renderBento();
 }
 boot();
