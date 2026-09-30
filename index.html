@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#f4f1ea">
 <title>GazChat Studio</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2310a37f'/%3E%3Ctext x='32' y='45' font-size='38' text-anchor='middle' fill='white' font-family='Georgia,serif'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 /* ============================================================
@@ -680,6 +681,542 @@ html[data-theme="ink"] .chatgpt-dot{background:rgba(255,255,255,.35)}
   .panel { width: 100% !important; }
 }
 @media (min-width:761px){ .scrim.rail-scrim{display:none} }
+
+
+/* ============================================================
+   GAZCHAT STUDIO — PREMIUM VISUAL LAYER  (visual only)
+   Appended after the original stylesheet. Overrides + extends.
+   No behavioural changes: every original selector still applies.
+   ============================================================ */
+
+:root{
+  --ease-spring:cubic-bezier(.22,1,.36,1);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --ease-io:cubic-bezier(.65,0,.35,1);
+  --shadow-sm:0 1px 2px rgba(24,20,12,.05), 0 2px 8px rgba(24,20,12,.045);
+  --shadow-md:0 10px 30px -10px rgba(24,20,12,.20), 0 3px 10px -4px rgba(24,20,12,.10);
+  --shadow-lg:0 28px 70px -22px rgba(24,20,12,.32), 0 10px 28px -16px rgba(24,20,12,.18);
+  --glass:color-mix(in srgb, var(--surface) 76%, transparent);
+  --glow:color-mix(in srgb, var(--accent) 30%, transparent);
+  --accent-tint:color-mix(in srgb, var(--accent) 10%, transparent);
+  --accent-tint2:color-mix(in srgb, var(--accent) 18%, transparent);
+  --dur:.34s;
+}
+html[data-theme="ink"]{
+  --paper:#050507; --bg:#050507; --surface:#0b0b10; --surface2:#14141b; --surface3:#1d1d26;
+  --line:#212129; --line2:#31313d;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.55);
+  --shadow-md:0 12px 34px -12px rgba(0,0,0,.75);
+  --shadow-lg:0 32px 80px -24px rgba(0,0,0,.92);
+  --glass:color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+/* ---------- canvas ---------- */
+body{
+  background:
+    radial-gradient(1100px 640px at 14% -12%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 62%),
+    radial-gradient(900px 560px at 102% -4%, rgba(66,133,244,.09), transparent 58%),
+    var(--bg);
+  transition:background-color .5s var(--ease-out), color .4s var(--ease-out);
+}
+::selection{background:color-mix(in srgb, var(--accent) 28%, transparent);color:var(--ink)}
+
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{
+  background:color-mix(in srgb, var(--line2) 78%, transparent);
+  border-radius:99px;border:3px solid transparent;background-clip:content-box;
+}
+::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb, var(--accent) 55%, var(--line2));background-clip:content-box}
+
+:where(button,a):focus-visible{
+  outline:none;box-shadow:0 0 0 2px var(--bg), 0 0 0 4px color-mix(in srgb, var(--accent) 55%, transparent);
+  border-radius:var(--r);
+}
+.pal-box input:focus,.pal-box input:focus-visible{box-shadow:none;outline:none}
+.searchbox input:focus,.searchbox input:focus-visible{box-shadow:none;outline:none}
+
+/* ---------- ambient aurora in the stage ---------- */
+.stage{background:transparent}
+.stage::before{
+  content:"";position:absolute;inset:-25%;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(36% 32% at 16% 22%, color-mix(in srgb, var(--accent) 9%, transparent), transparent 72%),
+    radial-gradient(30% 28% at 84% 16%, rgba(66,133,244,.075), transparent 72%),
+    radial-gradient(34% 30% at 68% 86%, rgba(217,119,87,.065), transparent 74%);
+  filter:blur(26px);
+  animation:gzAurora 24s var(--ease-io) infinite alternate;
+  will-change:transform;
+}
+html[data-theme="ink"] .stage::before{opacity:.7}
+@keyframes gzAurora{
+  0%{transform:translate3d(-2%,-1%,0) scale(1)}
+  50%{transform:translate3d(2.5%,2%,0) scale(1.07)}
+  100%{transform:translate3d(-1%,1.5%,0) scale(1.02)}
+}
+.thread{position:relative;z-index:1}
+
+/* fade the transcript out behind the composer */
+.dock-wrap::before{
+  content:"";position:absolute;left:0;right:0;bottom:100%;height:110px;pointer-events:none;
+  background:linear-gradient(to top, var(--bg) 12%, color-mix(in srgb, var(--bg) 55%, transparent) 52%, transparent);
+}
+
+/* ---------- glass chrome ---------- */
+.rail{
+  background:var(--glass);
+  -webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);
+  border-right:1px solid color-mix(in srgb, var(--line) 80%, transparent);
+}
+.conv{
+  background:var(--glass);
+  -webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);
+  border-right:1px solid color-mix(in srgb, var(--line) 80%, transparent);
+}
+.strip{
+  background:color-mix(in srgb, var(--surface) 78%, transparent);
+  -webkit-backdrop-filter:blur(22px) saturate(1.5);backdrop-filter:blur(22px) saturate(1.5);
+  border-bottom:1px solid color-mix(in srgb, var(--line) 85%, transparent);
+}
+
+/* ---------- rail ---------- */
+.rail .logo{
+  background:linear-gradient(145deg, color-mix(in srgb, var(--accent) 88%, #fff) 0%, var(--accent) 55%, color-mix(in srgb, var(--accent) 72%, #000) 100%);
+  box-shadow:0 10px 26px -8px var(--glow), inset 0 1px 0 rgba(255,255,255,.35);
+  transition:transform .5s var(--ease-spring), box-shadow .4s var(--ease-out);
+}
+.rail .logo:hover{transform:rotate(-8deg) scale(1.08);box-shadow:0 14px 34px -8px var(--glow)}
+.rbtn,.sbtn,.tbtn,.btn,.send,.step-lbl,.pal-item,.dropdown-item,.pcard,.mopt,.citem{
+  transition:transform .26s var(--ease-spring), background-color .22s var(--ease-out),
+             color .22s var(--ease-out), border-color .22s var(--ease-out), box-shadow .28s var(--ease-out),
+             opacity .22s var(--ease-out), filter .22s var(--ease-out);
+}
+.rbtn:hover{background:var(--surface2);color:var(--ink);transform:translateY(-1px) scale(1.06)}
+.rbtn:active{transform:scale(.93)}
+.rbtn.on{
+  background:linear-gradient(140deg, var(--accent-tint2), var(--accent-tint));
+  color:var(--accent);box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--accent) 26%, transparent);
+}
+.rbtn.on::before{
+  background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 70%, #fff), var(--accent));
+  box-shadow:0 0 12px 1px var(--glow);
+  animation:gzBarGrow .45s var(--ease-spring) both;
+}
+@keyframes gzBarGrow{from{transform:scaleY(.2);opacity:0}to{transform:scaleY(1);opacity:1}}
+.rail .who{transition:transform .3s var(--ease-spring), border-color .3s}
+.rail .who:hover{transform:scale(1.08);border-color:var(--accent)}
+
+/* rail entrance */
+.rail>*{animation:gzSlideL .6s var(--ease-spring) both}
+.rail>*:nth-child(1){animation-delay:.03s}
+.rail>*:nth-child(2){animation-delay:.07s}
+.rail>*:nth-child(3){animation-delay:.11s}
+.rail>*:nth-child(4){animation-delay:.15s}
+.rail>*:nth-child(5){animation-delay:.19s}
+.rail>*:nth-child(7){animation-delay:.23s}
+.rail>*:nth-child(8){animation-delay:.27s}
+.rail>*:nth-child(9){animation-delay:.31s}
+@keyframes gzSlideL{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+
+/* ---------- conversation column ---------- */
+.conv-head{animation:gzFadeUp .6s var(--ease-spring) .06s both}
+.conv-list{animation:gzFadeUp .6s var(--ease-spring) .12s both}
+.conv-foot{animation:gzFadeUp .6s var(--ease-spring) .18s both}
+@keyframes gzFadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.conv-head h2{letter-spacing:-.4px}
+.searchbox{
+  transition:border-color .25s var(--ease-out), box-shadow .3s var(--ease-out), background-color .25s;
+}
+.searchbox:focus-within{
+  border-color:var(--accent);background:var(--surface);
+  box-shadow:0 0 0 3px var(--accent-tint);
+}
+.citem{position:relative;overflow:hidden}
+.citem:hover{transform:translateX(2px)}
+.citem.on{
+  background:linear-gradient(90deg, var(--accent-tint), transparent 85%);
+  box-shadow:inset 2px 0 0 var(--accent);
+}
+.citem .dot{transition:background .3s, transform .3s var(--ease-spring), box-shadow .3s}
+.citem.on .dot{box-shadow:0 0 0 3px var(--accent-tint);transform:scale(1.25)}
+.citem .acts button{transition:transform .2s var(--ease-spring), background .18s, color .18s}
+.citem .acts button:hover{transform:scale(1.15)}
+.new-chat-btn{
+  background:linear-gradient(135deg, color-mix(in srgb, var(--accent) 92%, #fff), var(--accent) 60%, color-mix(in srgb, var(--accent) 80%, #000));
+  box-shadow:0 8px 22px -10px var(--glow);transition:transform .28s var(--ease-spring), box-shadow .3s, filter .25s;
+}
+.new-chat-btn:hover{transform:translateY(-1px);box-shadow:0 12px 30px -10px var(--glow)}
+
+/* ---------- provider chip ---------- */
+.prov-chip{
+  transition:transform .28s var(--ease-spring), border-color .25s, box-shadow .3s, background .25s;
+}
+.prov-chip:hover{transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+.prov-chip .car{transition:transform .3s var(--ease-spring)}
+.prov-chip:hover .car{transform:translateY(1px)}
+.prov-dot{box-shadow:0 0 0 3px color-mix(in srgb, currentColor 12%, transparent)}
+.prov-dot.ok{background:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb, var(--ok) 18%, transparent)}
+.prov-dot.busy{box-shadow:0 0 0 3px color-mix(in srgb, var(--warn) 18%, transparent)}
+.sbtn:hover{transform:translateY(-1px);background:var(--surface3)}
+.sbtn:active{transform:scale(.94)}
+
+/* ---------- empty state ---------- */
+.empty{animation:gzFadeUp .7s var(--ease-spring) both}
+.empty .badge{
+  position:relative;overflow:hidden;
+  animation:gzFadeUp .7s var(--ease-spring) .05s both;
+  background:color-mix(in srgb, var(--surface) 70%, transparent);
+}
+.empty .badge::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--accent) 26%, transparent) 50%, transparent 70%);
+  transform:translateX(-120%);animation:gzSweep 4.2s var(--ease-io) infinite;
+}
+@keyframes gzSweep{0%{transform:translateX(-120%)}55%,100%{transform:translateX(120%)}}
+.empty h1{
+  background-image:linear-gradient(100deg,
+    var(--ink) 0%, var(--ink) 40%,
+    color-mix(in srgb, var(--accent) 85%, var(--ink)) 50%,
+    var(--ink) 60%, var(--ink) 100%);
+  background-size:300% 100%;
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;
+  animation:gzSheen 10s linear infinite, gzFadeUp .8s var(--ease-spring) .1s both;
+}
+.empty h1 em{-webkit-text-fill-color:var(--accent);color:var(--accent)}
+@keyframes gzSheen{to{background-position:300% 0}}
+.empty p{animation:gzFadeUp .8s var(--ease-spring) .16s both}
+.bento{animation:gzFadeUp .8s var(--ease-spring) .2s both}
+.bcard{
+  position:relative;overflow:hidden;
+  box-shadow:var(--shadow-sm);
+  animation:gzCardIn .65s var(--ease-spring) both;
+}
+.bcard:nth-child(1){animation-delay:.22s}
+.bcard:nth-child(2){animation-delay:.28s}
+.bcard:nth-child(3){animation-delay:.34s}
+.bcard:nth-child(4){animation-delay:.40s}
+.bcard:nth-child(5){animation-delay:.46s}
+.bcard:nth-child(6){animation-delay:.52s}
+@keyframes gzCardIn{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+.bcard::after{
+  content:"";position:absolute;top:0;left:-60%;width:45%;height:100%;
+  background:linear-gradient(100deg, transparent, color-mix(in srgb, var(--accent) 16%, transparent), transparent);
+  transform:skewX(-18deg);opacity:0;transition:opacity .3s;
+}
+.bcard:hover{
+  transform:translateY(-4px);
+  border-color:color-mix(in srgb, var(--accent) 60%, var(--line));
+  box-shadow:var(--shadow-md), 0 0 0 1px var(--accent-tint);
+}
+.bcard:hover::after{opacity:1;animation:gzShine .9s var(--ease-out)}
+@keyframes gzShine{from{left:-60%}to{left:120%}}
+.bcard .k{transition:letter-spacing .3s var(--ease-out)}
+.bcard:hover .k{letter-spacing:.18em}
+
+/* ---------- messages ---------- */
+.msg{
+  animation:gzMsgIn .5s var(--ease-spring) both;
+  animation-delay:calc(var(--i, 0) * 38ms);
+}
+@keyframes gzMsgIn{
+  from{opacity:0;transform:translateY(14px) scale(.985);filter:blur(4px)}
+  to{opacity:1;transform:none;filter:blur(0)}
+}
+.role .who{transition:color .25s}
+.msg:hover .role .who{color:var(--muted)}
+.msg.me .body{
+  background:linear-gradient(160deg, var(--surface) 0%, color-mix(in srgb, var(--accent) 6%, var(--surface)) 100%);
+  box-shadow:var(--shadow-sm);
+  transition:transform .3s var(--ease-spring), box-shadow .3s;
+}
+.msg.me:hover .body{transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.msg.ai .body{
+  border-left:0;position:relative;padding-left:18px;
+}
+.msg.ai .body::before{
+  content:"";position:absolute;left:0;top:2px;bottom:2px;width:2px;border-radius:2px;
+  background:linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 25%, transparent));
+  box-shadow:0 0 14px -2px var(--glow);
+  animation:gzBarGrow .5s var(--ease-spring) both;
+}
+.body :not(pre)>code{transition:background .2s, border-color .2s}
+.body :not(pre)>code:hover{border-color:var(--accent);background:var(--accent-tint)}
+.body a{text-decoration-thickness:1px;transition:color .2s, opacity .2s}
+.body a:hover{opacity:.8}
+.attach{
+  animation:gzFadeUp .5s var(--ease-spring) both;
+  background:var(--accent-tint);
+}
+
+/* live typing indicator while the model streams its first token */
+.msg.ai .md:empty::before{
+  content:"";display:inline-block;width:7px;height:7px;border-radius:50%;
+  background:var(--accent);margin:0 0 3px 2px;
+  box-shadow:13px 0 0 color-mix(in srgb, var(--accent) 55%, transparent),
+             26px 0 0 color-mix(in srgb, var(--accent) 30%, transparent);
+  animation:gzDots 1.25s var(--ease-io) infinite;
+}
+@keyframes gzDots{
+  0%,100%{opacity:.45;transform:translateY(0)}
+  50%{opacity:1;transform:translateY(-3px)}
+}
+.cursor{
+  width:9px;height:18px;border-radius:3px;
+  background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 70%, #fff), var(--accent));
+  box-shadow:0 0 12px var(--glow);
+  animation:gzCaret 1.05s var(--ease-io) infinite;
+}
+@keyframes gzCaret{0%,100%{opacity:1;transform:scaleY(1)}50%{opacity:.35;transform:scaleY(.82)}}
+
+.thinking{transition:border-color .3s, background .3s}
+.thinking[open]{border-style:solid;border-color:color-mix(in srgb, var(--accent) 45%, var(--line2))}
+.thinking summary{transition:color .25s, padding-left .25s}
+.thinking summary:hover{color:var(--ink);padding-left:16px}
+.thinking .t-body{animation:gzFadeUp .35s var(--ease-out) both}
+
+.toolchips{animation:gzFadeUp .45s var(--ease-spring) both}
+.tchip{
+  transition:transform .26s var(--ease-spring), box-shadow .28s, background .25s;
+  animation:gzChipIn .45s var(--ease-spring) both;
+}
+.tchip:hover{transform:translateY(-1px);box-shadow:0 6px 16px -8px var(--glow)}
+@keyframes gzChipIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+
+.tools button{transition:transform .24s var(--ease-spring), color .2s, background .2s, border-color .2s}
+.tools button:hover{transform:translateY(-1px)}
+.tools button:active{transform:scale(.94)}
+
+.note{box-shadow:var(--shadow-sm);animation:gzFadeUp .5s var(--ease-spring) both}
+.note button{transition:transform .26s var(--ease-spring), border-color .22s, color .22s, filter .22s}
+.note button:hover{transform:translateY(-1px)}
+
+/* ---------- code blocks ---------- */
+.code{
+  box-shadow:var(--shadow-md);
+  background:linear-gradient(180deg, #0e1016, #090a0e);
+  border-color:rgba(255,255,255,.10);
+  transition:border-color .3s, box-shadow .3s, transform .3s var(--ease-spring);
+}
+.code:hover{border-color:rgba(255,255,255,.20);box-shadow:var(--shadow-lg)}
+.code-head{background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03))}
+.code-head button{transition:transform .22s var(--ease-spring), background .2s, color .2s}
+.code-head button:hover{transform:translateY(-1px)}
+.code-head button:active{transform:scale(.93)}
+.run-out{animation:gzFadeUp .45s var(--ease-spring) both}
+
+/* ---------- composer ---------- */
+.dock{
+  background:color-mix(in srgb, var(--surface) 88%, transparent);
+  -webkit-backdrop-filter:blur(22px) saturate(1.4);backdrop-filter:blur(22px) saturate(1.4);
+  border-color:color-mix(in srgb, var(--line2) 85%, transparent);
+  box-shadow:var(--shadow-md);
+  transition:box-shadow .35s var(--ease-out), border-color .3s var(--ease-out), transform .35s var(--ease-spring);
+}
+.dock:hover{transform:translateY(-1px)}
+.dock:focus-within{
+  border-color:color-mix(in srgb, var(--accent) 75%, var(--line2));
+  box-shadow:var(--shadow-lg), 0 0 0 3px var(--accent-tint);
+  transform:translateY(-2px);
+}
+.dock:focus-within::before{
+  content:"";position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(100deg, transparent 25%, color-mix(in srgb, var(--accent) 30%, transparent) 50%, transparent 75%);
+  background-size:250% 100%;animation:gzBorderFlow 4.5s linear infinite;
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;padding:1px;opacity:.85;
+}
+@keyframes gzBorderFlow{to{background-position:250% 0}}
+.model-pill-dock{transition:transform .26s var(--ease-spring), background .22s, border-color .22s, box-shadow .28s}
+.model-pill-dock:hover{transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+.model-pill-dock:active{transform:scale(.97)}
+.model-pill-dock .dock-icon{transition:transform .35s var(--ease-spring)}
+.model-pill-dock:hover .dock-icon{transform:scale(1.18) rotate(-6deg)}
+.tbtn:hover{transform:translateY(-1px) scale(1.06)}
+.tbtn:active{transform:scale(.9)}
+.tbtn.on{animation:gzMic 1.5s var(--ease-io) infinite}
+@keyframes gzMic{0%,100%{box-shadow:0 0 0 0 var(--glow)}50%{box-shadow:0 0 0 8px transparent}}
+.send{
+  background:linear-gradient(140deg, color-mix(in srgb, var(--accent) 88%, #fff), var(--accent) 55%, color-mix(in srgb, var(--accent) 78%, #000));
+  box-shadow:0 8px 20px -8px var(--glow), inset 0 1px 0 rgba(255,255,255,.25);
+  transition:transform .26s var(--ease-spring), box-shadow .3s, filter .25s, background .3s;
+}
+.send:hover{transform:translateY(-1px) scale(1.06);box-shadow:0 12px 26px -8px var(--glow)}
+.send:active{transform:scale(.92)}
+.send:not(:disabled):not(.stop){animation:gzSendPulse 3.4s var(--ease-io) infinite}
+@keyframes gzSendPulse{0%,88%,100%{box-shadow:0 8px 20px -8px var(--glow), inset 0 1px 0 rgba(255,255,255,.25)}
+  92%{box-shadow:0 8px 26px -6px var(--glow), 0 0 0 6px color-mix(in srgb, var(--accent) 14%, transparent), inset 0 1px 0 rgba(255,255,255,.25)}}
+.send.stop{background:linear-gradient(140deg, color-mix(in srgb, var(--err) 85%, #fff), var(--err));box-shadow:0 8px 20px -8px color-mix(in srgb, var(--err) 45%, transparent)}
+.pending{animation:gzFadeUp .35s var(--ease-spring) both}
+.dock-hint{display:block;padding-bottom:11px}
+
+/* ---------- floating model / tier popup ---------- */
+.chatgpt-popup{animation:none}
+.chatgpt-popup.open{animation:gzPopIn .4s var(--ease-spring) both}
+@keyframes gzPopIn{from{opacity:0;transform:translateY(14px) scale(.95)}to{opacity:1;transform:none}}
+.chatgpt-slider-card{
+  box-shadow:var(--shadow-lg);
+  border-color:color-mix(in srgb, var(--line2) 90%, transparent);
+}
+.slider-card-pill{transition:transform .26s var(--ease-spring), background .22s, border-color .22s}
+.slider-card-pill:hover{transform:translateY(-1px)}
+.slider-card-pill .chevron{transition:transform .3s var(--ease-spring)}
+.slider-card-pill:hover .chevron{transform:translateX(2px)}
+.chatgpt-slider-track{box-shadow:inset 0 1px 3px rgba(0,0,0,.10)}
+.chatgpt-slider-fill{
+  background:linear-gradient(90deg, color-mix(in srgb, var(--accent) 72%, #2b7fff), var(--accent));
+  box-shadow:0 0 18px -2px var(--glow);
+}
+.chatgpt-thumb{
+  box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 16%, transparent), 0 4px 14px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.9);
+}
+.chatgpt-slider-track.dragging .chatgpt-thumb{box-shadow:0 0 0 7px color-mix(in srgb, var(--accent) 20%, transparent), 0 6px 18px rgba(0,0,0,.4)}
+.chatgpt-dot{transition:background .2s, transform .25s var(--ease-spring), box-shadow .25s}
+.chatgpt-dot.lit{box-shadow:0 0 0 3px color-mix(in srgb, #fff 22%, transparent)}
+.step-lbl{transition:color .2s, background .2s, transform .26s var(--ease-spring)}
+.step-lbl:hover{transform:translateY(-1px)}
+.step-lbl.active{box-shadow:inset 0 0 0 1px color-mix(in srgb, #2b7fff 30%, transparent)}
+.slider-tier-desc b{transition:color .25s}
+.qwen-progress-fill{
+  background:linear-gradient(90deg, color-mix(in srgb, var(--accent) 70%, #fff), var(--accent));
+  box-shadow:0 0 14px -2px var(--glow);transition:width .35s var(--ease-out);
+}
+.qwen-tab,.qwen-panel-tab{transition:transform .24s var(--ease-spring), background .2s, color .2s, border-color .2s, box-shadow .25s}
+.qwen-tab:hover,.qwen-panel-tab:hover{transform:translateY(-1px)}
+.chatgpt-model-dropdown{
+  animation:gzPopIn .32s var(--ease-spring) both;
+  box-shadow:var(--shadow-lg);
+}
+.dropdown-item{animation:gzItemIn .42s var(--ease-spring) both}
+.dropdown-item:nth-child(1){animation-delay:.04s}
+.dropdown-item:nth-child(2){animation-delay:.09s}
+.dropdown-item:nth-child(3){animation-delay:.14s}
+.dropdown-item:nth-child(4){animation-delay:.19s}
+.dropdown-item:nth-child(5){animation-delay:.24s}
+.dropdown-item:nth-child(6){animation-delay:.29s}
+@keyframes gzItemIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.dropdown-item:hover{transform:translateX(3px)}
+.dropdown-item .d-badge{transition:transform .3s var(--ease-spring), box-shadow .3s}
+.dropdown-item:hover .d-badge{transform:scale(1.08)}
+.dropdown-item.on .d-badge{box-shadow:0 0 0 3px var(--accent-tint)}
+.dropdown-item.on::after{content:"✓";margin-left:auto;color:var(--accent);font-weight:700;font-size:12px}
+
+/* ---------- settings panel ---------- */
+.panel{transition:transform .46s var(--ease-spring);box-shadow:var(--shadow-lg)}
+.panel-head{
+  background:color-mix(in srgb, var(--surface) 82%, transparent);
+  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+}
+.panel-body>*{animation:gzItemIn .55s var(--ease-spring) both}
+.panel-body>*:nth-child(1){animation-delay:.05s}
+.panel-body>*:nth-child(2){animation-delay:.10s}
+.panel-body>*:nth-child(3){animation-delay:.15s}
+.panel-body>*:nth-child(4){animation-delay:.20s}
+.panel-body>*:nth-child(5){animation-delay:.25s}
+.panel-body>*:nth-child(6){animation-delay:.30s}
+.panel-body>*:nth-child(7){animation-delay:.35s}
+.pcard{overflow:hidden;transition:transform .28s var(--ease-spring), border-color .25s, box-shadow .3s, background .25s}
+.pcard:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.pcard.on{
+  background:linear-gradient(150deg, var(--accent-tint2), var(--surface2));
+  box-shadow:0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent), 0 10px 26px -14px var(--glow);
+}
+.pcard .ic{transition:transform .35s var(--ease-spring), box-shadow .3s}
+.pcard:hover .ic{transform:scale(1.1) rotate(-4deg)}
+.pcard.on .ic{box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent)}
+.mopt{transition:transform .24s var(--ease-spring), border-color .22s, background .22s}
+.mopt:hover{transform:translateX(3px)}
+.extrow{overflow:hidden;transition:transform .26s var(--ease-spring), border-color .22s, box-shadow .28s}
+.extrow:hover{transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+.status{border-left:2px solid color-mix(in srgb, var(--accent) 45%, transparent)}
+.slider input[type=range]{
+  height:6px;border-radius:99px;appearance:none;-webkit-appearance:none;
+  background:linear-gradient(90deg, var(--accent-tint2), var(--surface3));outline:none;
+}
+.slider input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:18px;height:18px;border-radius:50%;cursor:pointer;
+  background:linear-gradient(140deg, color-mix(in srgb, var(--accent) 85%, #fff), var(--accent));
+  box-shadow:0 2px 8px -2px var(--glow), 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
+  transition:transform .2s var(--ease-spring), box-shadow .25s;
+}
+.slider input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15);box-shadow:0 2px 12px -2px var(--glow), 0 0 0 6px color-mix(in srgb, var(--accent) 18%, transparent)}
+.slider input[type=range]::-moz-range-thumb{
+  width:16px;height:16px;border:none;border-radius:50%;cursor:pointer;
+  background:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+.swatch button{transition:transform .3s var(--ease-spring), box-shadow .3s, border-color .25s}
+.swatch button:hover{transform:scale(1.16) rotate(6deg);box-shadow:var(--shadow-sm)}
+.swatch button.on{transform:scale(1.12);box-shadow:0 0 0 3px var(--accent-tint)}
+
+/* ---------- command palette / modals ---------- */
+.pal.open{animation:gzFadeIn .22s var(--ease-out) both}
+@keyframes gzFadeIn{from{opacity:0}to{opacity:1}}
+.pal-box{animation:gzPopIn .4s var(--ease-spring) both;box-shadow:var(--shadow-lg)}
+.pal-item{transition:transform .22s var(--ease-spring), background .18s}
+.pal-item.sel,.pal-item:hover{transform:translateX(3px)}
+.pal-item.sel{background:linear-gradient(90deg, var(--accent-tint2), var(--surface2))}
+.modal.open{animation:gzFadeIn .24s var(--ease-out) both}
+.modal-box{animation:gzPopIn .42s var(--ease-spring) both;box-shadow:var(--shadow-lg)}
+.inp{transition:border-color .25s var(--ease-out), background .25s, box-shadow .3s var(--ease-out), transform .25s}
+.inp:hover{border-color:var(--line2)}
+.btn.solid{
+  background:linear-gradient(135deg, color-mix(in srgb, var(--accent) 90%, #fff), var(--accent) 58%, color-mix(in srgb, var(--accent) 82%, #000));
+  box-shadow:0 8px 20px -10px var(--glow);
+  transition:transform .26s var(--ease-spring), box-shadow .3s, filter .25s;
+}
+.btn.solid:hover{transform:translateY(-1px);box-shadow:0 12px 28px -10px var(--glow);filter:brightness(1.05)}
+.btn.solid:active{transform:scale(.97)}
+.btn.line:hover{transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+.cmd button{transition:transform .24s var(--ease-spring), color .2s, border-color .2s}
+.cmd button:hover{transform:translateY(-1px)}
+.sw{transition:background .3s var(--ease-out), border-color .3s, box-shadow .3s}
+.sw.on{box-shadow:0 0 0 3px var(--accent-tint), inset 0 1px 0 rgba(255,255,255,.25)}
+.sw::after{transition:left .3s var(--ease-spring), background .25s, transform .25s}
+
+/* ---------- toast ---------- */
+#toast{
+  -webkit-backdrop-filter:blur(14px) saturate(1.4);backdrop-filter:blur(14px) saturate(1.4);
+  background:color-mix(in srgb, var(--ink) 92%, transparent);
+  transition:opacity .3s var(--ease-out), transform .45s var(--ease-spring);
+  box-shadow:var(--shadow-lg);
+}
+#toast.show{transform:translateX(-50%) translateY(0) scale(1)}
+
+/* ---------- ripple ---------- */
+.btn,.send,.sbtn,.bcard,.pal-item,.dropdown-item,.pcard,.mopt,.citem,.qwen-tab,.qwen-panel-tab,
+.note button,.code-head button,.cmd button,.step-lbl,.swatch button{position:relative;overflow:hidden}
+.ripple{
+  position:absolute;border-radius:50%;pointer-events:none;transform:scale(0);
+  background:currentColor;opacity:.20;animation:gzRipple .65s var(--ease-out) forwards;
+}
+@keyframes gzRipple{to{transform:scale(1);opacity:0}}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;
+    transition-duration:.001ms!important;scroll-behavior:auto!important}
+  .stage::before{animation:none}
+}
+
+/* ---------- generating scanline + scrolled header ---------- */
+.stage::after{
+  content:"";position:absolute;top:0;left:0;right:0;height:2px;z-index:40;pointer-events:none;
+  background:linear-gradient(90deg, transparent, var(--accent),
+             color-mix(in srgb, var(--accent) 40%, #2b7fff), var(--accent), transparent);
+  background-size:45% 100%;background-repeat:no-repeat;opacity:0;
+  transition:opacity .35s var(--ease-out);
+}
+html.gz-generating .stage::after{opacity:1;animation:gzScan 1.5s linear infinite}
+@keyframes gzScan{0%{background-position:-45% 0}100%{background-position:145% 0}}
+.strip.scrolled{box-shadow:0 10px 30px -18px rgba(0,0,0,.45)}
+
+/* pause ambient motion while the tab is hidden (saves battery) */
+html.gz-hidden .stage::before,
+html.gz-hidden .empty .badge::after,
+html.gz-hidden .empty h1,
+html.gz-hidden .send{animation-play-state:paused!important}
+
 </style>
 </head>
 <body>
@@ -3747,6 +4284,107 @@ function boot(){
   renderBento();
 }
 boot();
+</script>
+<script>
+/* ==========================================================================
+   GazChat Studio — PREMIUM VISUAL LAYER (script)
+   Purely cosmetic. It never touches the AI engines, providers, streaming,
+   chat storage or any decision-making code. It only:
+     1. adds a pointer "ripple" micro-interaction,
+     2. staggers transcript entrances,
+     3. tracks the header shadow while scrolling,
+     4. exposes a `gz-generating` class while a reply is streaming.
+   ========================================================================== */
+(function () {
+  'use strict';
+
+  /* ---- 1. ripple micro-interaction ------------------------------------- */
+  var RIPPLE_SEL = '.btn,.send,.sbtn,.bcard,.pal-item,.dropdown-item,.pcard,.mopt,' +
+                   '.citem,.qwen-tab,.qwen-panel-tab,.note button,.code-head button,.cmd button,.step-lbl';
+
+  document.addEventListener('pointerdown', function (e) {
+    var el = e.target && e.target.closest ? e.target.closest(RIPPLE_SEL) : null;
+    if (!el || el.disabled) return;
+    var r = el.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    var size = Math.max(r.width, r.height) * 2.1;
+    var span = document.createElement('span');
+    span.className = 'ripple';
+    span.style.width = span.style.height = size + 'px';
+    span.style.left = (e.clientX - r.left - size / 2) + 'px';
+    span.style.top = (e.clientY - r.top - size / 2) + 'px';
+    el.appendChild(span);
+    setTimeout(function () { if (span.parentNode) span.parentNode.removeChild(span); }, 700);
+  }, { passive: true });
+
+  /* ---- 2. smarter scroll: never yank the reader, never hide the hero --- */
+  var forceScroll = false;
+  try {
+    if (typeof window.scrollDown === 'function') {
+      window.scrollDown = function () {
+        var el = document.getElementById('thread');
+        if (!el) return;
+        var msgs = document.getElementById('msgs');
+        var hasMsgs = !!(msgs && msgs.children.length);
+        var force = forceScroll;
+        requestAnimationFrame(function () {
+          if (!hasMsgs) { el.scrollTop = 0; return; }          // show the hero on the empty state
+          var gap = el.scrollHeight - el.scrollTop - el.clientHeight;
+          if (force || gap < 260) el.scrollTop = el.scrollHeight; // only follow when already at the end
+        });
+      };
+    }
+  } catch (err) {}
+
+  /* ---- 3. staggered transcript entrance -------------------------------- */
+  try {
+    var origRenderThread = window.renderThread;
+    if (typeof origRenderThread === 'function') {
+      window.renderThread = function () {
+        forceScroll = true;
+        var out = origRenderThread.apply(this, arguments);
+        forceScroll = false;
+        var nodes = document.querySelectorAll('#msgs .msg');
+        for (var i = 0; i < nodes.length; i++) {
+          nodes[i].style.setProperty('--i', Math.min(i, 18));
+        }
+        return out;
+      };
+      window.renderThread();
+    }
+  } catch (err) { /* visual only — never break the app */ }
+
+  /* ---- 4. header shadow on scroll -------------------------------------- */
+  try {
+    var thread = document.getElementById('thread');
+    var strip = document.querySelector('.strip');
+    if (thread && strip) {
+      var onScroll = function () {
+        strip.classList.toggle('scrolled', thread.scrollTop > 4);
+      };
+      thread.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
+  } catch (err) {}
+
+  /* ---- 5. streaming scanline ------------------------------------------- */
+  try {
+    var origSetSend = window.setSend;
+    if (typeof origSetSend === 'function') {
+      window.setSend = function (busy) {
+        var out = origSetSend.apply(this, arguments);
+        document.documentElement.classList.toggle('gz-generating', !!busy);
+        return out;
+      };
+    }
+  } catch (err) {}
+
+  /* ---- 6. keep the aurora cheap when the tab is hidden ----------------- */
+  document.addEventListener('visibilitychange', function () {
+    document.documentElement.classList.toggle('gz-hidden', document.hidden);
+  });
+})();
+
 </script>
 </body>
 </html>
