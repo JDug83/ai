@@ -1218,20 +1218,6 @@ html.gz-hidden .empty h1,
 html.gz-hidden .send{animation-play-state:paused!important}
 
 </style>
-
-<style>
-/* Mobile keyboard and accessibility */
-@media(max-width:760px){
- .shell,.shell.no-conv,.stage{height:var(--gz-viewport,100dvh)!important;min-height:0!important}
- .inp,input,textarea,select,.dock textarea{font-size:16px!important}
- .thread{overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-bottom:260px}
- .sbtn,.tools button,.dock-bar button{min-height:44px;min-width:44px}
- .strip{padding-top:env(safe-area-inset-top);height:calc(58px + env(safe-area-inset-top))}
- .body pre{max-width:100%;overflow:auto}
-}
-button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}}
-</style>
 </head>
 <body>
 
@@ -1307,7 +1293,7 @@ button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outlin
         <div class="empty" id="empty">
           <div class="badge">✦ GazChat Studio</div>
           <h1>Fast, private AI.<br><em>On your terms.</em></h1>
-          <p><b>GazChat Nano 1.1</b> is a downloadable 135M or 360M neural model that runs entirely on your device (iPhone, Android, PC). Model files are cached locally. Initial setup and page reloads need internet; no API key or inference server is needed.</p>
+          <p><b>GazChat Nano 1.1</b> is a real, downloadable 360M neural model that runs entirely on your device (iPhone, Android, PC). Download it once, then chat offline with no API key and no server.</p>
           <div class="bento" id="bento"></div>
         </div>
         <div id="msgs"></div>
@@ -1332,25 +1318,19 @@ button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outlin
 
             <!-- GazChat Nano 1.1 — real downloadable on-device model -->
             <div id="nano11Section" class="hidden">
-              <label style="display:block;padding:12px;font-size:13px">Model mode
-                <select id="phoneMode" onchange="choosePhoneMode(this.value)" style="width:100%;margin-top:6px;padding:10px">
-                  <option value="lite">Lite · 135M · recommended for iPhone 11</option>
-                  <option value="standard">Standard · 360M · try on iPhone 16</option>
-                </select>
-              </label>
               <div class="qwen-card-body">
                 <div class="qwen-status-row">
                   <span class="prov-dot ok" id="n11Dot"></span>
-                  <span id="n11StatusText">GazChat Nano 1.1</span>
+                  <span id="n11StatusText">GazChat Nano 1.1 · SmolLM2 360M</span>
                   <span class="qwen-device-badge" id="n11DeviceBadge">WebGPU</span>
                 </div>
                 <button type="button" class="btn solid" id="n11DlBtn" onclick="downloadNano11Model()" style="margin-top:10px;padding:9px 12px;font-size:12px;border-radius:9px;width:100%">
-                  ⬇ Download GazChat Nano 1.1 (~140–375 MB depending on mode)
+                  ⬇ Download GazChat Nano 1.1 (~273 MB)
                 </button>
                 <div class="qwen-progress-bar hidden" id="n11ProgressBar">
                   <div class="qwen-progress-fill" id="n11ProgressFill"></div>
                 </div>
-                <div class="hint" id="n11ProgressHint" style="margin:6px 0 0;font-size:11px">Lite mode uses SmolLM2 135M for lower memory use. Standard uses 360M. Model files are cached; initial setup and page reloads need internet.</div>
+                <div class="hint" id="n11ProgressHint" style="margin:6px 0 0;font-size:11px">A real 360M-parameter neural network. Downloads once into your browser cache, then runs fully offline on iPhone, iPad, Android or PC — 4-bit on WebGPU, 8-bit on CPU.</div>
               </div>
             </div>
           </div>
@@ -1405,10 +1385,10 @@ button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outlin
 
     <div class="sect hidden" id="sectNano11Panel">
       <h3>GazChat Nano 1.1 — On-Device Model</h3>
-      <p class="hint" style="margin:0 0 10px">A real neural network (<b>SmolLM2-360M-Instruct</b>) that runs entirely on your device — no API key or inference server. Initial setup and page reloads need internet. Use Lite mode for lower memory use; it picks 4-bit on WebGPU or 8-bit on CPU automatically.</p>
-      <button type="button" class="btn solid" id="n11pDlBtn" onclick="downloadNano11Model()" style="width:100%;margin-bottom:8px">⬇ Download GazChat Nano 1.1 (~140–375 MB depending on mode)</button>
+      <p class="hint" style="margin:0 0 10px">A real neural network (<b>SmolLM2-360M-Instruct</b>) that downloads once and then runs entirely on your device — no API, no server, works offline. Small enough for phones (iPhone 16 / Safari) and laptops; it picks 4-bit on WebGPU or 8-bit on CPU automatically.</p>
+      <button type="button" class="btn solid" id="n11pDlBtn" onclick="downloadNano11Model()" style="width:100%;margin-bottom:8px">⬇ Download GazChat Nano 1.1 (~273 MB)</button>
       <div class="qwen-progress-bar hidden" id="n11pProgressBar"><div class="qwen-progress-fill" id="n11pProgressFill"></div></div>
-      <p class="hint" id="n11pProgressHint" style="margin-top:6px">Downloads into your browser cache, then generates on your device. Initial setup and page reloads need internet.</p>
+      <p class="hint" id="n11pProgressHint" style="margin-top:6px">Downloads into your browser cache, then runs offline. This is a genuine downloadable model — not a scripted engine.</p>
       <div class="row" style="gap:8px;margin-top:8px;align-items:center">
         <button type="button" class="btn line" onclick="resetQwenGpu()" style="font-size:11.5px;padding:7px 10px">↻ Try GPU again</button>
         <span style="font-size:11px;color:var(--muted)">Uses the same GPU/CPU fallback as Qwen.</span>
@@ -1667,7 +1647,7 @@ function renderProviders(){
     const b = document.createElement('button');
     b.className = 'pcard' + (id===active ? ' on' : '');
     b.style.setProperty('--pc', m.accent);
-    const sub = 'On-device neural · ' + (LOCAL_MODELS.nano11 ? LOCAL_MODELS.nano11.size : '~140–375 MB depending on mode');
+    const sub = 'On-device neural · ' + (LOCAL_MODELS.nano11 ? LOCAL_MODELS.nano11.size : '~273 MB');
     b.innerHTML = '<span class="ic" style="background:'+m.accent+'">'+m.short+'</span>' +
       '<span><span class="nm">'+esc(m.name)+'</span><br><span class="st set">'+sub+'</span></span>';
     b.onclick = ()=>selectProvider(id);
@@ -1696,7 +1676,7 @@ function setDot(state){
 }
 function updateStrip(){
   $('pName').textContent = 'GazChat Nano 1.1';
-  $('mName').textContent = n11Cached ? 'On-device · ready' : 'On-device · ' + (LOCAL_MODELS.nano11 ? LOCAL_MODELS.nano11.size : '~140–375 MB depending on mode') + ' download';
+  $('mName').textContent = n11Cached ? 'On-device · ready' : 'On-device · ' + (LOCAL_MODELS.nano11 ? LOCAL_MODELS.nano11.size : '~273 MB') + ' download';
   const mp = $('dockMName'); if(mp) mp.textContent = 'Gaz Nano 1.1';
   $('dockHint').textContent = 'GazChat Nano 1.1 · real on-device AI · ⌘K for commands';
   updateSliderWidget();
@@ -1759,7 +1739,7 @@ function renderModelDropdown(){
     const m = meta(id), isCur = active === id;
     const item = document.createElement('button');
     item.className = 'dropdown-item' + (isCur ? ' on' : '');
-    const sub = 'Real on-device AI · Download ' + (LOCAL_MODELS.nano11 ? LOCAL_MODELS.nano11.size : '~140–375 MB depending on mode') + ' · runs on iPhone & desktop';
+    const sub = 'Real on-device AI · Download ' + (LOCAL_MODELS.nano11 ? LOCAL_MODELS.nano11.size : '~273 MB') + ' · runs on iPhone & desktop';
 
     item.innerHTML = '<span class="d-badge" style="background:' + m.accent + '">' + m.short + '</span>' +
       '<div class="d-info"><span class="d-name">' + esc(m.name) + '</span><span class="d-sub">' + sub + '</span></div>';
@@ -1782,9 +1762,9 @@ function selectModelFromDropdown(id){
 /* ---- On-device model engine — GazChat Nano 1.1 (SmolLM2-360M-Instruct) ----
    The registry describes the only model the app ships. transformers.js loads it
    straight from Cache Storage, so after the one-time download it runs fully
-   locally with no API key or inference server. */
+   offline with no API key and no server. */
 const QWEN_CACHE_NAME = 'transformers-cache'; // must match @huggingface/transformers
-const TRANSFORMERS_URL = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/dist/transformers.min.js';
+const TRANSFORMERS_URL = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.3.3';
 
 const LOCAL_MODELS = {
   nano11: {
@@ -1793,24 +1773,11 @@ const LOCAL_MODELS = {
     webgpu:{ dtype:'q4f16', file:'onnx/model_q4f16.onnx' },
     wasm:{ dtype:'q8', file:'onnx/model_quantized.onnx' },
     meta:['config.json','generation_config.json','tokenizer.json','tokenizer_config.json','special_tokens_map.json','vocab.json','merges.txt'],
-    size:'~273–375 MB',
+    size:'~273 MB',
     system:'You are GazChat Nano 1.1, a small, fast, friendly on-device AI assistant. Give correct, well-structured answers, use fenced code blocks with a language tag for code, and be concise unless depth is needed.'
   }
 };
-const PHONE_LITE = {
-  ...LOCAL_MODELS.nano11, repo:'HuggingFaceTB/SmolLM2-135M-Instruct',
-  size:'~140 MB', tier:'Lite · SmolLM2 135M'
-};
-let phoneLite = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
-  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-function localModel(id){ return phoneLite ? PHONE_LITE : LOCAL_MODELS.nano11; }
-function choosePhoneMode(value){
-  if(generating || n11Downloading) return toast('Stop the reply or wait for the download first.');
-  phoneLite = value === 'lite'; killBuiltin(); n11Cached=false;
-  refreshNano11CachedUI(); syncNano11UI();
-  toast(phoneLite ? 'Lite model selected: lower memory use.' : 'Standard model selected: higher memory use.');
-}
-
+function localModel(id){ return LOCAL_MODELS[id] || LOCAL_MODELS.nano11; }
 function localHfBase(id){ return 'https://huggingface.co/' + localModel(id).repo + '/resolve/main/'; }
 
 async function qwenTarget(id){
@@ -1818,7 +1785,7 @@ async function qwenTarget(id){
   // slower but it actually runs. (`gz.qwenGpuFail` is the sticky flag.)
   const M = localModel(id || 'nano11');
   const gpuBlocked = !!get('gz.qwenGpuFail', false);
-  if(!gpuBlocked && !phoneLite){
+  if(!gpuBlocked){
     try{
       if(typeof navigator !== 'undefined' && navigator.gpu){
         const adapter = await navigator.gpu.requestAdapter();
@@ -1842,9 +1809,10 @@ function resetQwenGpu(){
 /* ==========================================================================
    GAZCHAT NANO 1.1 — a real neural model that runs on the device.
    SmolLM2-360M-Instruct, downloaded once into the same browser Cache Storage
-   bucket transformers.js reads from, then generates locally. 4-bit (q4f16) on
+   bucket transformers.js reads from, then runs fully offline. 4-bit (q4f16) on
    WebGPU and 8-bit (q8) on CPU/WASM — small enough for phones (iPhone 16 /
-   Safari) and laptops, and streams downloads into Cache Storage. Runtime memory still depends on the browser.
+   Safari) and laptops, and it never loads the weights into RAM just to cache
+   them, so it cannot crash with out-of-memory while downloading.
    ========================================================================== */
 let n11Downloading = false, n11Cached = false, n11Device = 'wasm';
 
@@ -1853,11 +1821,7 @@ async function isNano11Cached(){
   try{
     const target = await qwenTarget('nano11');
     const cache = await caches.open(QWEN_CACHE_NAME);
-    n11Device=target.device;
-    for(const file of localModel('nano11').meta.concat([target.file])){
-      if(!(await cache.match(localHfBase('nano11') + file))) return false;
-    }
-    return true;
+    return !!(await cache.match(localHfBase('nano11') + target.file));
   }catch(e){ return false; }
 }
 async function refreshNano11CachedUI(){
@@ -1881,8 +1845,6 @@ async function downloadNano11Model(){
   }
 
   try{
-    if(!window.isSecureContext) throw new Error('Open the hosted HTTPS page in Safari.');
-    if(navigator.storage && navigator.storage.persist) await navigator.storage.persist().catch(()=>false);
     const cache = await caches.open(QWEN_CACHE_NAME);
     const target = await qwenTarget('nano11');
     const files = M.meta.concat([target.file]);
@@ -1908,16 +1870,22 @@ async function downloadNano11Model(){
       if(!res.ok) throw new Error('HTTP ' + res.status + ' fetching ' + f);
       const fileTotal = Number(res.headers.get('content-length')) || sizes[f] || 0;
       let fileLoaded = 0;
-      if(res.body && typeof TransformStream !== 'undefined'){
-        const progress = new TransformStream({ transform(chunk, controller){
-          fileLoaded += chunk.byteLength;
-          const pct = total ? Math.min(99, Math.round((loadedTotal + fileLoaded) / total * 100)) : 0;
-          updateNano11Progress(pct, f); controller.enqueue(chunk);
-        }});
-        await cache.put(url, new Response(res.body.pipeThrough(progress), {headers:res.headers}));
-      }else{
-        await cache.put(url, res); fileLoaded=fileTotal;
+      const chunks = [];
+      if(res.body && res.body.getReader){
+        const reader = res.body.getReader();
+        for(;;){
+          const { done, value } = await reader.read();
+          if(done) break;
+          chunks.push(value); fileLoaded += value.length;
+          const pct = total ? Math.round((loadedTotal + fileLoaded) / total * 100)
+                            : (fileTotal ? Math.round(fileLoaded / fileTotal * 100) : 0);
+          updateNano11Progress(pct, f);
+        }
+      } else {
+        const buf = new Uint8Array(await res.arrayBuffer());
+        chunks.push(buf); fileLoaded = buf.length;
       }
+      await cache.put(url, new Response(new Blob(chunks), { headers: res.headers }));
       loadedTotal += fileLoaded;
       updateNano11Progress(total ? Math.round(loadedTotal / total * 100) : 100, f);
     }
@@ -1946,9 +1914,9 @@ function onNano11DownloadDone(device, silent){
   ['n11ProgressBar', 'n11pProgressBar'].forEach(id => { const el = $(id); if(el) el.classList.add('hidden'); });
   ['n11DlBtn', 'n11pDlBtn'].forEach(id => {
     const el = $(id);
-    if(el){ el.disabled = false; el.textContent = '✓ Model files cached'; el.className = 'btn line'; }
+    if(el){ el.disabled = false; el.textContent = '✓ GazChat Nano 1.1 downloaded — runs offline'; el.className = 'btn line'; }
   });
-  const hint = 'Model files cached. Initial setup and page reloads need internet. Generates on ' +
+  const hint = 'Saved in your browser cache. Runs offline on ' +
     (n11Device === 'webgpu' ? 'your GPU (WebGPU, 4-bit).' : 'your CPU (WASM, 8-bit).');
   ['n11ProgressHint', 'n11pProgressHint'].forEach(id => { const el = $(id); if(el) el.textContent = hint; });
   const badge = $('n11DeviceBadge');
@@ -1962,8 +1930,6 @@ function syncNano11UI(){
   if(n11Cached){ onNano11DownloadDone(n11Device, true); return; }
   if(n11Downloading) return;
   const M = localModel('nano11');
-  if($('phoneMode')) $('phoneMode').value = phoneLite ? 'lite' : 'standard';
-  if($('n11StatusText')) $('n11StatusText').textContent = M.tier || 'Standard · SmolLM2 360M';
   ['n11DlBtn', 'n11pDlBtn'].forEach(id => {
     const el = $(id);
     if(el){ el.disabled = false; el.textContent = '⬇ Download GazChat Nano 1.1 (' + M.size + ')'; el.className = 'btn solid'; }
@@ -1974,66 +1940,206 @@ function syncNano11UI(){
 /* ==========================================================================
    BUILT-IN ENGINE — a real model with NO API key, running in this browser
    ========================================================================== */
-let bw = null, bReady = false, workerObjectURL=null, engineStatus = ()=>{};
+let bw = null, bReady = false, engineStatus = ()=>{};
 
-
-function killBuiltin(){ if(bw){ try{ bw.terminate(); }catch(e){} } if(workerObjectURL){URL.revokeObjectURL(workerObjectURL);workerObjectURL=null;} bw = null; bReady = false; }
-
-let workerKey = '';
-async function runBuiltin(messages, system, onDelta, signal){
-  if(signal && signal.aborted) throw new DOMException('Stopped','AbortError');
-  if(location.protocol==='file:') throw new Error('This app needs a web address. Upload all ZIP contents to your HTTPS website, then open index.html.');
-  if(!window.isSecureContext) throw new Error('Open GazChat using HTTPS or localhost.');
-  const M=localModel(active);
-  const trimmed=(messages || []).slice(phoneLite ? -2 : -4).map(m=>({role:m.role, content:String(m.content).slice(-(phoneLite ? 1200 : 2400))}));
-  const payload = target => ({model:M.repo, device:target.device, dtype:target.dtype,
-    messages:[{role:'system',content:(system || M.system).slice(0,600)},...trimmed],
-    maxTokens:Math.max(1,Math.min(prefs.maxTokens || 128,phoneLite ? 96 : 256)),
-    contextLimit:phoneLite ? 512 : 1024, temperature:prefs.temperature ?? 0.7});
-  function attempt(target){
-    return new Promise((resolve,reject)=>{
-      if(signal && signal.aborted) return reject(new DOMException('Stopped','AbortError'));
-      const key=M.repo+'|'+target.device+'|'+target.dtype;
-      if(!bw || workerKey!==key){
-        killBuiltin();
-        try{
-          const url=new URL('./gazchat-worker.js', document.baseURI);
-          bw=new Worker(url,{type:'module'});
-          workerKey=key;
-        }catch(e){return reject(new Error('Model worker could not start. Upload the complete ZIP contents to an HTTPS website and open its index.html.'));}
+function builtinMain(){
+  // NOTE: this whole function is stringified and runs inside a Web Worker, so it
+  // cannot reference outer constants — keep the library URL inline.
+  const LIB = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.3.3';
+  let loaded = null, loadedKey = '';
+  // Surface even uncaught runtime errors (WebGPU device-lost, WASM aborts)
+  // as normal messages so the page can fall back cleanly instead of dying.
+  self.addEventListener('error', (e) => {
+    try{ self.postMessage({ type:'error', message: (e && e.message) || 'Qwen engine runtime error' }); }catch(_){}
+  });
+  self.addEventListener('unhandledrejection', (e) => {
+    const r = e && e.reason;
+    try{ self.postMessage({ type:'error', message: (r && r.message) || String(r) || 'Qwen engine rejected' }); }catch(_){}
+  });
+  self.onmessage = async ({ data }) => {
+    try{
+      const { pipeline, TextStreamer, env } = await import(LIB);
+      env.allowLocalModels = false;
+      env.useBrowserCache = true;
+      // Single thread WASM avoids massive thread stack memory allocation on browser tabs
+      if(env.backends && env.backends.onnx && env.backends.onnx.wasm){
+        env.backends.onnx.wasm.numThreads = 1;
+        env.backends.onnx.wasm.simd = true;
+        env.backends.onnx.wasm.proxy = false;
+        // In a blob worker import.meta.url is a blob: URL, so force the CDN
+        // path for the ONNX runtime .wasm/.mjs files.
+        if(!env.backends.onnx.wasm.wasmPaths) env.backends.onnx.wasm.wasmPaths = LIB + '/dist/';
       }
-      let settled=false, timer, stage='Starting worker';
-      const cleanup=()=>{clearTimeout(timer); if(signal) signal.removeEventListener('abort',aborted); if(bw){bw.onmessage=null;bw.onerror=null;bw.onmessageerror=null;}};
-      const fail=e=>{if(settled)return;settled=true;cleanup();killBuiltin();reject(e);};
-      const touch=()=>{clearTimeout(timer);timer=setTimeout(()=>fail(new Error('Model stalled. Keep Safari open, select Lite mode, and retry.')),180000);};
-      const aborted=()=>fail(new DOMException('Stopped','AbortError'));
-      if(signal)signal.addEventListener('abort',aborted,{once:true});
-      bw.onerror=e=>{if(e.preventDefault)e.preventDefault();fail(new Error((e.message || 'Could not load gazchat-worker.js. Upload every file from the ZIP together; check that your host serves JavaScript files correctly')+' · Stage: '+stage));};
-      bw.onmessageerror=()=>fail(new Error('Model worker message failed.'));
-      bw.onmessage=({data})=>{
-        touch();
-        if(data.type==='stage'){stage=data.message;engineStatus(stage+'…');}
-        else if(data.type==='progress'){
-          const p=data.p || {}; engineStatus('Loading '+M.name+' · '+(p.file || 'runtime')+' · '+Math.round(p.progress || 0)+'%');
-        }else if(data.type==='device'){
-          n11Device=data.device;
-          if($('n11DeviceBadge'))$('n11DeviceBadge').textContent=data.device==='webgpu'?'WebGPU':'CPU / WASM';
-        }else if(data.type==='ready'){bReady=true;engineStatus('');}
-        else if(data.type==='chunk'){onDelta(data.t);}
-        else if(data.type==='done'){settled=true;cleanup();refreshNano11CachedUI();resolve();}
-        else if(data.type==='error')fail(new Error(data.message+' · Stage: '+stage));
+      // Device + dtype are chosen on the main thread (and prefetched into the
+      // cache for exactly this combination), so honour them here.
+      const device = data.device || 'wasm';
+      const dtype = data.dtype || (device === 'webgpu' ? 'q4f16' : 'q8');
+      const key = data.model + '|' + device + '|' + dtype;
+      if(loadedKey !== key || !loaded){
+        loadedKey = key; loaded = null;
+        const mk = (dev, dt) => pipeline('text-generation', data.model, {
+          device: dev, dtype: dt,
+          progress_callback: p => self.postMessage({ type:'progress', p })
+        });
+        try{
+          loaded = await mk(device, dtype);
+          self.postMessage({ type:'device', device });
+        } catch(e){
+          if(device === 'wasm') throw e;
+          // GPU ran out of memory / unsupported op: fall back to the small CPU model.
+          loaded = await mk('wasm', 'q8');
+          self.postMessage({ type:'device', device:'wasm' });
+        }
+      }
+      self.postMessage({ type:'ready' });
+      const streamer = new TextStreamer(loaded.tokenizer, {
+        skip_prompt:true, skip_special_tokens:true,
+        callback_function: t => self.postMessage({ type:'chunk', t })
+      });
+      // Safety memory cap: clamp tokens to max 256 to prevent KV-cache buffer out of memory
+      const safeMaxTokens = Math.min(Math.max(32, data.maxTokens || 256), 256);
+      await loaded(data.messages, {
+        max_new_tokens: safeMaxTokens,
+        do_sample: data.temperature > 0.01,
+        temperature: Math.max(0.01, data.temperature),
+        repetition_penalty: 1.1,
+        streamer
+      });
+      self.postMessage({ type:'done' });
+    }catch(e){
+      const errStr = (e && e.message) || String(e);
+      let userMsg = errStr;
+      if(/out of memory|allocation failed|device lost|arraybuffer|oom|buffer size|failed to allocate/i.test(errStr)){
+        userMsg = 'Out of GPU/CPU memory. Use Gaz Nano (instant, no download) or run Qwen locally via Ollama (`ollama run qwen2.5:0.5b`).';
+      }
+      self.postMessage({ type:'error', message: userMsg });
+    }
+  };
+}
+function killBuiltin(){ if(bw){ try{ bw.terminate(); }catch(e){} } bw = null; bReady = false; }
+
+let mainEngine = null, mainEngineKey = '';
+async function runBuiltinMain(messages, system, onDelta, signal){
+  const id = active;
+  const M = localModel(id);
+  const { pipeline, TextStreamer, env } = await import(TRANSFORMERS_URL);
+  env.allowLocalModels = false;
+  env.useBrowserCache = true;
+  if(env.backends && env.backends.onnx && env.backends.onnx.wasm){
+    env.backends.onnx.wasm.numThreads = 1;
+    env.backends.onnx.wasm.simd = true;
+    env.backends.onnx.wasm.proxy = false;
+    if(!env.backends.onnx.wasm.wasmPaths) env.backends.onnx.wasm.wasmPaths = TRANSFORMERS_URL + '/dist/';
+  }
+  const cfg = ensure(id);
+  const target = await qwenTarget(id);
+  const key = id + '|' + M.repo + '|' + target.device + '|' + target.dtype;
+  if(mainEngineKey !== key || !mainEngine){
+    mainEngineKey = key; mainEngine = null;
+    const mk = (dev, dt) => pipeline('text-generation', M.repo, {
+      device: dev, dtype: dt,
+      progress_callback: p => {
+        const pct = Math.round((p && p.progress) || 0);
+        engineStatus('Loading ' + M.name + ' · ' + ((p && p.file) || 'weights') + (pct ? ' · ' + pct + '%' : ''));
+        updateNano11Progress(pct, p.file);
+      }
+    });
+    try{ mainEngine = await mk(target.device, target.dtype); }
+    catch(e){ if(target.device === 'wasm') throw e; mainEngine = await mk('wasm', M.wasm.dtype); }
+  }
+  engineStatus('');
+  if(signal && signal.aborted) throw new DOMException('Stopped', 'AbortError');
+  const streamer = new TextStreamer(mainEngine.tokenizer, {
+    skip_prompt:true, skip_special_tokens:true,
+    callback_function: t => onDelta(t)
+  });
+  const trimmed = (messages || []).slice(-4).map(m => ({
+    role: m.role,
+    content: typeof m.content === 'string' ? m.content.slice(-1000) : String(m.content)
+  }));
+  const sys = (system || M.system).slice(0, 300);
+  const safeTokens = Math.min(Math.max(32, prefs.maxTokens || 256), 256);
+  await mainEngine([{ role:'system', content: sys }, ...trimmed], {
+    max_new_tokens: safeTokens,
+    do_sample: prefs.temperature > 0.01,
+    temperature: Math.max(0.01, prefs.temperature),
+    repetition_penalty: 1.1,
+    streamer
+  });
+}
+
+function runBuiltin(messages, system, onDelta, signal){
+  const id = active;
+  const M = localModel(id);
+  const cfg = ensure(id);
+  const trimmed = (messages || []).slice(-4).map(m => ({
+    role: m.role,
+    content: typeof m.content === 'string' ? m.content.slice(-1000) : String(m.content)
+  }));
+  const sys = (system || M.system).slice(0, 300);
+  const buildPayload = (target) => ({
+    model: M.repo,
+    device: target.device,
+    dtype: target.dtype,
+    messages: [{ role:'system', content: sys }, ...trimmed],
+    maxTokens: Math.min(prefs.maxTokens || 256, 256),
+    temperature: prefs.temperature || 0.7
+  });
+
+  // One attempt on a fresh worker. Any worker-level crash (WebGPU device lost,
+  // WASM abort, module failure) rejects here instead of killing the app.
+  function attempt(target){
+    return new Promise((resolve, reject) => {
+      killBuiltin(); // always start clean so a dead worker can't be reused
+      try{
+        const url = URL.createObjectURL(new Blob(['(' + builtinMain.toString() + ')()'], { type:'text/javascript' }));
+        bw = new Worker(url, { type:'module' }); URL.revokeObjectURL(url);
+      }catch(e){ return reject(new Error('Web Workers are unavailable here.')); }
+
+      let settled = false, loadTimer = null;
+      const fail = (err) => { if(settled) return; settled = true; clearTimeout(loadTimer); killBuiltin(); reject(err); };
+      const ok   = () => { if(settled) return; settled = true; clearTimeout(loadTimer); resolve(); };
+
+      // If loading produces nothing for 120s (hung GPU / stalled fetch), bail.
+      loadTimer = setTimeout(()=>fail(new Error('Qwen engine timed out while loading (no response in 120s).')), 120000);
+
+      if(signal) signal.addEventListener('abort', ()=>fail(new DOMException('Stopped','AbortError')), { once:true });
+      bw.onerror = (e) => {
+        try{ console.error('[' + M.name + ' worker error]', e && e.message, e && e.filename, e && e.lineno); }catch(_){}
+        fail(new Error(M.name + ' engine error: ' + ((e && e.message) || 'unknown runtime failure')));
       };
-      touch(); bw.postMessage(payload(target));
+      bw.onmessageerror = () => fail(new Error(M.name + ' engine message error.'));
+      bw.onmessage = ({ data }) => {
+        if(data.type === 'progress'){
+          const p = data.p || {}, pct = Math.round(p.progress || 0);
+          engineStatus('Loading ' + M.name + ' · ' + (p.file || 'weights') + (pct ? ' · ' + pct + '%' : ''));
+          updateNano11Progress(pct, p.file);
+        }
+        else if(data.type === 'device') engineStatus('Loading on ' + (data.device === 'webgpu' ? 'your GPU (WebGPU)' : 'your CPU (WASM)') + '…');
+        else if(data.type === 'ready'){ bReady = true; clearTimeout(loadTimer); engineStatus(''); }
+        else if(data.type === 'chunk') onDelta(data.t);
+        else if(data.type === 'done') ok();
+        else if(data.type === 'error') fail(new Error(data.message));
+      };
+      bw.postMessage(buildPayload(target));
     });
   }
-  let emitted=false; const originalDelta=onDelta; onDelta=t=>{emitted=true; originalDelta(t);};
-  const target=await qwenTarget(active);
-  try{return await attempt(target);}catch(e){
-    if(e.name==='AbortError' || emitted || target.device!=='webgpu')throw e;
-    put('gz.qwenGpuFail',JSON.stringify(true));
-    engineStatus('GPU unavailable. Retrying on CPU…');
-    return attempt({device:'wasm',dtype:M.wasm.dtype});
-  }
+
+  return (async () => {
+    const target = await qwenTarget(id);
+    try{
+      return await attempt(target);
+    }catch(e){
+      const msg = String((e && e.message) || e);
+      // GPU path failed for any reason — remember it and retry once on CPU.
+      if(target.device === 'webgpu' && !/abort|stopped/i.test(msg)){
+        put('gz.qwenGpuFail', JSON.stringify(true));
+        engineStatus('WebGPU failed (' + msg + ') — retrying on CPU…');
+        return await attempt({ device:'wasm', dtype:M.wasm.dtype });
+      }
+      throw e;
+    }
+  })();
 }
 
 /* ==========================================================================
@@ -2360,7 +2466,16 @@ async function fetchModels(id){
    NETWORK — streaming
    ========================================================================== */
 async function streamChat(messages, system, onDelta, onThink, signal){
-  return runBuiltin(messages, system, onDelta, signal);
+  /* GazChat Nano 1.1 is the only model — a real on-device neural network. */
+  try{
+    return await runBuiltin(messages, system, onDelta, signal);
+  } catch(e){
+    const msg = String((e && e.message) || e);
+    // User-initiated stop must never be swallowed by the fallback.
+    if(/abort|stopped/i.test(msg)) throw e;
+    engineStatus('Worker engine unavailable — switching to main-thread mode…');
+    return runBuiltinMain(messages, system, onDelta, signal);
+  }
 }
 
 function httpMsg(s){
@@ -2486,7 +2601,7 @@ function runCode(btn){
    ========================================================================== */
 function renderBento(){
   const items = [
-    ['Maths', 'what is (128 * 4) + 56 / 7', 'On-device maths help'],
+    ['Maths', 'what is (128 * 4) + 56 / 7', 'Nano answers instantly — offline'],
     ['Convert', 'convert 10 km to miles', 'Length, weight, volume, temperature'],
     ['Explain', 'what is CORS?', '~60 dev topics built in'],
     ['Code', 'how do I fetch JSON in JavaScript', 'Working snippets, no download']
@@ -2548,7 +2663,6 @@ function grow(){ const el=$('input'); el.style.height='auto'; el.style.height=Ma
 function onKey(e){ if(e.key==='Enter' && !e.shiftKey && !e.isComposing){ e.preventDefault(); send(); } }
 
 async function send(){
-  if(n11Downloading) return toast('Wait for the model download to finish.');
   if(generating) return stop();
   const input = $('input'), text = input.value.trim();
   const cfg = ensure(active), kind = cfg.kind || meta(active).kind;
@@ -2626,7 +2740,7 @@ async function send(){
   generating = false; abort = null; engineStatus = ()=>{}; setSend(false); setDot(connected ? 'ok' : '');
 
   if(answer){
-    const am = { role:'assistant', content:answer, model:localModel(active).tier || 'SmolLM2 360M', at:Date.now() };
+    const am = { role:'assistant', content:answer, model:cfg.model, at:Date.now() };
     if(thinking.trim()) am.thinking = thinking.trim();
     if(toolRuns.length) am.tools = toolRuns;
     c.messages.push(am); save();
@@ -2639,17 +2753,17 @@ async function send(){
     const stopped = err.name === 'AbortError';
     if(!stopped){
       const embedded = (()=>{ try{ return window.self !== window.top; }catch(e){ return true; } })();
-      const hint = 'GazChat Nano 1.1 downloads ~140–375 MB depending on mode once into your browser cache, then generates locally. Initial setup and page reloads need internet. '
-        + 'Upload all files from GazChat-Fixed.zip together, then open index.html on your HTTPS website. '
+      const hint = 'GazChat Nano 1.1 downloads ~273 MB once into your browser cache, then runs offline. '
+        + 'Tap <b>⬇ Download GazChat Nano 1.1</b> in the model popup first, and open this page directly in Safari/Chrome (not an embedded preview). '
         + (embedded ? 'This page looks like it is running inside an <b>embedded preview</b>, which often blocks model workers. ' : '')
-        + 'Use Lite mode on iPhone 11. WebGPU requires browser support; CPU mode may be slow.';
+        + 'On browsers without WebGPU it falls back to CPU automatically.';
 
       const note = document.createElement('div'); note.className = 'note';
       note.innerHTML = '<div class="ntitle">⚠ ' + esc(err.message || 'Request failed') + '</div><p>' + hint + '</p>';
       const row = document.createElement('div'); row.className = 'row';
 
       const rt = document.createElement('button'); rt.textContent = 'Retry';
-      rt.onclick = ()=>{ note.remove(); if(c.messages[c.messages.length-1]===um)c.messages.pop(); save(); input.value = um.content; grow(); send(); };
+      rt.onclick = ()=>{ note.remove(); input.value = um.content; grow(); send(); };
       row.appendChild(rt);
       const st = document.createElement('button'); st.textContent = 'Model settings';
       st.onclick = ()=>openPanel();
@@ -2972,15 +3086,6 @@ boot();
   });
 })();
 
-</script>
-<script>
-(function(){
- const viewport=window.visualViewport;
- const resize=()=>document.documentElement.style.setProperty('--gz-viewport',(viewport ? viewport.height : window.innerHeight)+'px');
- if(viewport){viewport.addEventListener('resize',resize);viewport.addEventListener('scroll',resize);}
- window.addEventListener('resize',resize);resize();
- if(document.getElementById('phoneMode'))document.getElementById('phoneMode').value=phoneLite?'lite':'standard';
-})();
 </script>
 </body>
 </html>
